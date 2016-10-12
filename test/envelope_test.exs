@@ -21,10 +21,10 @@ defmodule EnvelopeTest do
   end
 
   test "create and Envelope from a Point and radius" do
-    assert Envelope.from_point_radius({2, -2}, 3) === %Envelope{ min_x: -1,
-                                                                 min_y: -5,
-                                                                 max_x: 5,
-                                                                 max_y: 1 }
+    assert Envelope.from_geo({2, -2}) |> Envelope.expand_by(3) === %Envelope{ min_x: -1,
+                                                                           min_y: -5,
+                                                                           max_x: 5,
+                                                                           max_y: 1 }
   end
 
   test "create an Envelope from an empty Polygon" do
@@ -37,8 +37,8 @@ defmodule EnvelopeTest do
   end
 
   test "expand an envelope by a radius" do
-    assert Envelope.empty? Envelope.expand(Envelope.empty, 4)
-    assert Envelope.expand(Envelope.from_geo(%Geo.Polygon{coordinates: [[{2, -2}, {20, -2}, {11, 11}, {2, -2}]]}), 3)
+    assert Envelope.empty? Envelope.expand_by(Envelope.empty, 4)
+    assert Envelope.expand_by(Envelope.from_geo(%Geo.Polygon{coordinates: [[{2, -2}, {20, -2}, {11, 11}, {2, -2}]]}), 3)
       === %Envelope{ min_x: -1,
                      min_y: -5,
                      max_x: 23,

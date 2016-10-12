@@ -31,15 +31,15 @@ defmodule Envelope do
                   | %Geo.MultiPolygon{}
 
   @doc ~S"""
-  Returns and `Envelope` that represents the extent of the geometry or
+  Returns an `Envelope` that represents the extent of the geometry or
   coordinates.
 
   ## Examples
       iex> Envelope.from_geo %{coordinates: [{11, 10}, {4, 2.5}, {16, 2.5}, {11, 10}]}
-      %Envelope{max_x: 16, max_y: 10, min_x: 4, min_y: 2.5}
+      %Envelope{ max_x: 16, max_y: 10, min_x: 4, min_y: 2.5 }
 
       iex> Envelope.from_geo [{11, 10}, {4, 2.5}, {16, 2.5}, {11, 10}]
-      %Envelope{max_x: 16, max_y: 10, min_x: 4, min_y: 2.5}
+      %Envelope{ max_x: 16, max_y: 10, min_x: 4, min_y: 2.5 }
 
       iex> Envelope.from_geo %Geo.Polygon{coordinates: [[{1, 3}, {2, -1}, {0, -1}, {1, 3}]]}
       %Envelope{ min_x: 0, min_y: -1, max_x: 2, max_y: 3 }
@@ -52,42 +52,67 @@ defmodule Envelope do
   def from_geo(%Geo.Point{coordinates: {x, y}}), do: %Envelope{min_x: x, min_y: y, max_x: x, max_y: y}
   def from_geo(%{coordinates: coordinates}), do: from_geo(coordinates)
   def from_geo(coordinates) when is_list(coordinates) do
-    List.flatten(coordinates) |> build_env
+    coordinates
+    |> List.flatten
+    |> Enum.reduce(Envelope.empty, &(expand(&2, &1)))
   end
 
-  def from_point_radius({x, y}, radius) when is_number(radius) and radius >= 0 do
-    %Envelope{min_x: x, min_y: y, max_x: x, max_y: y}
-    |> expand(radius)
-  end
+  @doc ~S"""
+  Returns an `Envelope` that represents no extent at all.  This is primarily
+  a convenience function for starting an expanding Envelope. Internally,
+  "empty" Envelopes are represented with `nil` values for all extents.
 
+  Note that there is a important distinction between an empty Envelope and
+  an Envelope around a single Point (where the min and max for each axis are
+  real numbers but may represent zero area).
+
+  ## Examples
+      iex> Envelope.empty
+      %Envelope{max_x: nil, max_y: nil, min_x: nil, min_y: nil}
+
+      iex> Envelope.empty |> Envelope.empty?
+      true
+  """
+  @spec empty() :: %Envelope{}
   def empty, do: %Envelope{min_x: nil, min_y: nil, max_x: nil, max_y: nil}
+
+
+  @doc ~S"""
+  Returns `true` if the given envelope is empty (has non-existent extent),
+  otherwise `false`
+
+  ## Examples
+      iex> Envelope.empty |> Envelope.empty?
+      true
+
+      iex> %Envelope{ min_x: 0, min_y: -1, max_x: 2, max_y: 3 } |> Envelope.empty?
+      false
+  """
+  @spec empty?(%Envelope{}) :: boolean
   def empty?(%Envelope{min_x: nil, min_y: nil, max_x: nil, max_y: nil}), do: true
   def empty?(%Envelope{}), do: false
 
-  def expand(%Envelope{} = env, {x, y}) do
-    case Envelope.empty? env do
-      true  -> %Envelope{min_x: x, min_y: y, max_x: x, max_y: y}
-      false -> %Envelope{
-                  min_x: min(x, env.min_x),
-                  min_y: min(y, env.min_y),
-                  max_x: max(x, env.max_x),
-                  max_y: max(y, env.max_y)
-                }
-    end
-  end
+  @doc ~S"""
+  Returns a new Envelope that is expanded to include an additional geometry.
 
-  def expand(%Envelope{} = env, radius) when is_number(radius) and radius >= 0 do
-    case Envelope.empty? env do
-      true  -> env
-      false -> %Envelope{
-                  min_x: env.min_x - radius,
-                  min_y: env.min_y - radius,
-                  max_x: env.max_x + radius,
-                  max_y: env.max_y + radius
-                }
-    end
-  end
+  ## Examples
+      iex> a = Envelope.from_geo(%Geo.Polygon{coordinates: [[{2, -2}, {20, -2}, {11, 11}, {2, -2}]]})
+      ...> b = %Geo.LineString{coordinates: [{1, 3}, {2, -1}, {0, -1}, {1, 3}]}
+      ...> Envelope.expand(a, b)
+      %Envelope{ min_x: 0, min_y: -2, max_x: 20, max_y: 11 }
 
+      iex> a = %Envelope{ min_x: 0, min_y: -2, max_x: 20, max_y: 11 }
+      ...> b = %Envelope{ min_x: 2, min_y: -3, max_x: 12, max_y: -2 }
+      ...> Envelope.expand(a, b)
+      %Envelope{ min_x: 0, min_y: -3, max_x: 20, max_y: 11 }
+
+      iex> Envelope.expand(Envelope.empty, %Envelope{ min_x: 0, min_y: -2, max_x: 20, max_y: 11 })
+      %Envelope{ min_x: 0, min_y: -2, max_x: 20, max_y: 11 }
+
+      iex> Envelope.expand(Envelope.empty, Envelope.empty) |> Envelope.empty?
+      true
+  """
+  @spec expand(%Envelope{}, {number, number} | %Envelope{} | points) :: %Envelope{}
   def expand(%Envelope{} = env1, %Envelope{} = env2) do
     cond do
       Envelope.empty?(env1) -> env2
@@ -102,6 +127,27 @@ defmodule Envelope do
   end
   def expand(%Envelope{} = env, other), do: expand(env, from_geo(other))
 
-  defp build_env([]), do: Envelope.empty
-  defp build_env([{x, y} | rest]), do: expand(build_env(rest), {x, y})
+  @doc ~S"""
+  Returns a new Envelope that is expanded in positive and negative directions
+  in each axis by `radius`.
+
+  ## Examples
+      iex> Envelope.expand_by(Envelope.from_geo(%Geo.Polygon{coordinates: [[{2, -2}, {20, -2}, {11, 11}, {2, -2}]]}), 3)
+      %Envelope{ min_x: -1, min_y: -5, max_x: 23, max_y: 14 }
+
+      iex> Envelope.expand_by(Envelope.empty, 4) |> Envelope.empty?
+      true
+  """
+  @spec expand_by(%Envelope{}, number) :: %Envelope{}
+  def expand_by(%Envelope{} = env, radius) when is_number(radius) and radius >= 0 do
+    case Envelope.empty? env do
+      true  -> env
+      false -> %Envelope{
+                  min_x: env.min_x - radius,
+                  min_y: env.min_y - radius,
+                  max_x: env.max_x + radius,
+                  max_y: env.max_y + radius
+                }
+    end
+  end
 end

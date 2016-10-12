@@ -38,7 +38,7 @@ defmodule Envelope.Mixfile do
       files: ["lib/envelope.ex", "lib/envelope", "mix.exs", "README*"],
       maintainers: ["Powell Kinney"],
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/pkinney/envelope"}
+      links: %{"GitHub" => "https://github.com/pkinney/envelope_ex"}
     ]
   end
 end
