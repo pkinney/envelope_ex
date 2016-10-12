@@ -1,6 +1,24 @@
 defmodule Envelope do
-  defstruct min_x: 0, min_y: 0, max_x: 0, max_y: 0
+  @moduledoc ~S"""
+  A library for calculating envelopes of geometries and tools to compare them.
+  This is most useful as an approximation of spacial relationships between more
+  complicated geometries.
 
+      iex> Envelope.from_geo( %Geo.Polygon{coordinates: [[{2, -2}, {20, -2}, {11, 11}, {2, -2}]]} )
+      %Envelope{ min_x: 2, min_y: -2, max_x: 20, max_y: 11 }
+
+      iex> Envelope.from_geo( %Geo.LineString{coordinates: [{1, 3}, {2, -1}, {0, -1}, {1, 3}]} )
+      %Envelope{ min_x: 0, min_y: -1, max_x: 2, max_y: 3 }
+
+  You can also expand an existing Envelope with a geometry or another Envelope
+
+      iex> a = Envelope.from_geo( %Geo.Polygon{coordinates: [[{2, -2}, {20, -2}, {11, 11}, {2, -2}]]} )
+      ...> b = %Geo.LineString{coordinates: [{1, 3}, {2, -1}, {0, -1}, {1, 3}]}
+      ...> Envelope.expand(a, b)
+      %Envelope{ min_x: 0, min_y: -2, max_x: 20, max_y: 11 }
+  """
+
+  defstruct min_x: 0, min_y: 0, max_x: 0, max_y: 0
 
   def from_geo(%Geo.Point{coordinates: {x, y}}) do
     %Envelope{min_x: x, min_y: y, max_x: x, max_y: y}

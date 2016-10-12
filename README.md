@@ -24,8 +24,10 @@ generated via the Geo library (https://github.com/bryanjos/geo) and returns an
 `Envelope` struct containing the maximum extent in the `x` and `y` direction.
 
 ```elixir
-env = %Envelope{min_x: -1, min_y: 2, max_x: 1, max_y: 5}
-
 Envelope.from_geo( %Geo.Polygon{coordinates: [[{2, -2}, {20, -2}, {11, 11}, {2, -2}]]} )
 # => %Envelope{ min_x: 2, min_y: -2, max_x: 20, max_y: 11 }
+
+env = %Envelope{min_x: -1, min_y: 2, max_x: 1, max_y: 5}
+Envelope.expand(env, %Geo.Polygon{coordinates: [[{2, -2}, {20, -2}, {11, 11}, {2, -2}]]})
+# => %Envelope{ min_x: -1, min_y: -2, max_x: 20, max_y: 11 }
 ```
