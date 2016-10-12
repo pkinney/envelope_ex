@@ -36,10 +36,10 @@ defmodule Envelope do
 
   ## Examples
       iex> Envelope.from_geo %{coordinates: [{11, 10}, {4, 2.5}, {16, 2.5}, {11, 10}]}
-      %Envelope{ min_x: 4, min_y: 2, max_x: 16, max_y: 10 }
+      %Envelope{max_x: 16, max_y: 10, min_x: 4, min_y: 2.5}
 
       iex> Envelope.from_geo [{11, 10}, {4, 2.5}, {16, 2.5}, {11, 10}]
-      %Envelope{ min_x: 4, min_y: 2, max_x: 16, max_y: 10 }
+      %Envelope{max_x: 16, max_y: 10, min_x: 4, min_y: 2.5}
 
       iex> Envelope.from_geo %Geo.Polygon{coordinates: [[{1, 3}, {2, -1}, {0, -1}, {1, 3}]]}
       %Envelope{ min_x: 0, min_y: -1, max_x: 2, max_y: 3 }
