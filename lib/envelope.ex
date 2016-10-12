@@ -20,11 +20,38 @@ defmodule Envelope do
 
   defstruct min_x: 0, min_y: 0, max_x: 0, max_y: 0
 
-  def from_geo(%Geo.Point{coordinates: {x, y}}) do
-    %Envelope{min_x: x, min_y: y, max_x: x, max_y: y}
-  end
+  @type points :: {number, number}
+                  | list
+                  | %{coordinates: list}
+                  | %Geo.Point{}
+                  | %Geo.MultiPoint{}
+                  | %Geo.LineString{}
+                  | %Geo.MultiLineString{}
+                  | %Geo.Polygon{}
+                  | %Geo.MultiPolygon{}
 
-  def from_geo(%{coordinates: coordinates}) do
+  @doc ~S"""
+  Returns and `Envelope` that represents the extent of the geometry or
+  coordinates.
+
+  ## Examples
+      iex> Envelope.from_geo %{coordinates: [{11, 10}, {4, 2.5}, {16, 2.5}, {11, 10}]}
+      %Envelope{ min_x: 4, min_y: 2, max_x: 16, max_y: 10 }
+
+      iex> Envelope.from_geo [{11, 10}, {4, 2.5}, {16, 2.5}, {11, 10}]
+      %Envelope{ min_x: 4, min_y: 2, max_x: 16, max_y: 10 }
+
+      iex> Envelope.from_geo %Geo.Polygon{coordinates: [[{1, 3}, {2, -1}, {0, -1}, {1, 3}]]}
+      %Envelope{ min_x: 0, min_y: -1, max_x: 2, max_y: 3 }
+
+      iex> Envelope.from_geo {1, 3}
+      %Envelope{ min_x: 1, min_y: 3, max_x: 1, max_y: 3 }
+  """
+  @spec from_geo(points) :: %Envelope{}
+  def from_geo({x, y}), do: %Envelope{min_x: x, min_y: y, max_x: x, max_y: y}
+  def from_geo(%Geo.Point{coordinates: {x, y}}), do: %Envelope{min_x: x, min_y: y, max_x: x, max_y: y}
+  def from_geo(%{coordinates: coordinates}), do: from_geo(coordinates)
+  def from_geo(coordinates) when is_list(coordinates) do
     List.flatten(coordinates) |> build_env
   end
 
