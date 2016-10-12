@@ -1,6 +1,6 @@
 # Envelope
 
-[![Build Status](https://travis-ci.org/pkinney/envelope.svg?branch=master)](https://travis-ci.org/pkinney/envelope)
+[![Build Status](https://travis-ci.org/pkinney/envelope_ex.svg?branch=master)](https://travis-ci.org/pkinney/envelope_ex)
 [![Hex.pm](https://img.shields.io/hexpm/v/envelope.svg)](https://hex.pm/packages/envelope)
 
 A library for calculating envelopes of geometries and tools to compare them.

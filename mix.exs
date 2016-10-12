@@ -35,7 +35,7 @@ defmodule Envelope.Mixfile do
 
   defp package do
     [
-      files: ["lib/envelope.ex", "lib/envelope", "mix.exs", "README*"],
+      files: ["lib/envelope.ex", "mix.exs", "README*"],
       maintainers: ["Powell Kinney"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/pkinney/envelope_ex"}
