@@ -29,7 +29,7 @@ defmodule Envelope.Mixfile do
 
   defp description do
     """
-    Geometry library for determining spatial relationships between geometries
+    A library for calculating envelopes of geometries and tools to compare them.
     """
   end
 
