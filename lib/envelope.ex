@@ -150,4 +150,29 @@ defmodule Envelope do
                 }
     end
   end
+
+  @doc ~S"""
+  Returns whether two envelopes touch or intersect.
+
+  ## Examples
+      iex> Envelope.intersect?(
+      ...> %Envelope{ min_x: -1, min_y: -5, max_x: 23, max_y: 14 },
+      ...> %Envelope{ min_x: 0, min_y: 3, max_x: 7, max_y: 4 })
+      true
+
+      iex> Envelope.intersect?(
+      ...> %Envelope{ min_x: -1, min_y: 5, max_x: 23, max_y: 14 },
+      ...> %Envelope{ min_x: 0, min_y: -3, max_x: 7, max_y: 4 })
+      false
+  """
+  @spec intersect?(%Envelope{}, %Envelope{}) :: boolean
+  def intersect?(%Envelope{} = env1, %Envelope{} = env2) do
+    cond do
+      env1.min_x > env2.max_x -> false
+      env1.max_x < env2.min_x -> false
+      env1.min_y > env2.max_y -> false
+      env1.max_y < env2.min_y -> false
+      true -> true
+    end
+  end
 end
