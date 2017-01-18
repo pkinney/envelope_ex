@@ -150,4 +150,99 @@ defmodule Envelope do
                 }
     end
   end
+
+
+  @doc ~S"""
+  Simple distance from the left bounadary to the right boundary of the Envelope.
+
+  ## Examples
+      iex> Envelope.width(Envelope.from_geo(%Geo.Polygon{coordinates: [[{2, -2}, {20, -2}, {11, 11}, {2, -2}]]}))
+      18
+  """
+  @spec width(%Envelope{}) :: number
+  def width(%Envelope{} = env) do
+    env.max_x - env.min_x
+  end
+
+  @doc ~S"""
+  When an Envelope's coordinates are in degress of longitude and latitude, calculates the
+  great circle distance between the center of the east and west extent in meters.
+
+  ## Examples
+      iex> Envelope.width_gc(Envelope.from_geo(%Geo.Polygon{coordinates: [[{2, -2}, {20, -2}, {11, 11}, {2, -2}]]})) |> round
+      1982362
+  """
+  @spec width_gc(%Envelope{}) :: number
+  def width_gc(%Envelope{} = env) do
+    bottom = Distance.GreatCircle.distance({env.min_x, env.min_y}, {env.max_x, env.min_y})
+    top = Distance.GreatCircle.distance({env.min_x, env.max_y}, {env.max_x, env.max_y})
+    (bottom + top) / 2.0
+  end
+
+  @doc ~S"""
+  Simple distance from the bottom bounadary to the top boundary of the Envelope.
+
+  ## Examples
+      iex> Envelope.height(Envelope.from_geo(%Geo.Polygon{coordinates: [[{2, -2}, {20, -2}, {11, 11}, {2, -2}]]}))
+      13
+  """
+  @spec height(%Envelope{}) :: number
+  def height(%Envelope{} = env) do
+    env.max_y - env.min_y
+  end
+
+  @doc ~S"""
+  When an Envelope's coordinates are in degress of longitude and latitude, calculates the
+  great circle distance between the center of the north and south extent in meters.
+
+  ## Examples
+      iex> Envelope.height_gc(Envelope.from_geo(%Geo.Polygon{coordinates: [[{2, -2}, {20, -2}, {11, 11}, {2, -2}]]})) |> round
+      1445536
+  """
+  @spec height_gc(%Envelope{}) :: number
+  def  height_gc(%Envelope{} = env) do
+    Distance.GreatCircle.distance({env.min_x, env.min_y}, {env.min_x, env.max_y})
+  end
+
+  @doc ~S"""
+  Calculates the simple area of an Envelope.
+
+  ## Examples
+      iex> Envelope.area(Envelope.from_geo(%Geo.Polygon{coordinates: [[{2, -2}, {20, -2}, {11, 11}, {2, -2}]]}))
+      234
+  """
+  @spec area(%Envelope{}) :: number
+  def area(%Envelope{} = env) do
+    width(env) * height(env)
+  end
+
+
+  @doc ~S"""
+  Estimates the area of an Envelope in square meters when the Envelope's coordinates are in degress of longitude and latitude.
+
+  ## Examples
+      iex> Envelope.area_gc(Envelope.from_geo(%Geo.Polygon{coordinates: [[{2, -2}, {20, -2}, {11, 11}, {2, -2}]]})) |> round
+      2865575088701
+  """
+  @spec area_gc(%Envelope{}) :: number
+  def area_gc(%Envelope{} = env) do
+    width_gc(env) * height_gc(env)
+  end
+
+  @spec contains?(%Envelope{}, %Envelope{} | {number, number}) :: boolean
+  def contains?(%Envelope{} = env, {x, y}) do
+    env.min_x <= x
+    && env.min_y <= y
+    && env.max_x >= x
+    && env.max_y >= y
+  end
+  def contains?(%Envelope{} = env1, %Envelope{} = env2) do
+    env1.min_x <= env2.min_x
+    && env1.min_y <= env2.min_y
+    && env1.max_x >= env2.max_x
+    && env1.max_y >= env2.max_y
+  end
+
+  @spec within?(%Envelope{}, %Envelope{} | {number, number}) :: boolean
+  def within?(a, b), do: contains?(b, a)
 end
