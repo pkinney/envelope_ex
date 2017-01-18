@@ -151,7 +151,6 @@ defmodule Envelope do
     end
   end
 
-
   @doc ~S"""
   Simple distance from the left bounadary to the right boundary of the Envelope.
 
@@ -229,6 +228,25 @@ defmodule Envelope do
     width_gc(env) * height_gc(env)
   end
 
+  @doc ~S"""
+  Returns whether one envelope fully contains another envelope or point.
+
+  ## Examples
+      iex> Envelope.contains?(
+      ...> %Envelope{ min_x: -1, min_y: -5, max_x: 23, max_y: 14 },
+      ...> %Envelope{ min_x: 0, min_y: 3, max_x: 7, max_y: 4 })
+      true
+
+      iex> Envelope.contains?(
+      ...> %Envelope{ min_x: -1, min_y: 5, max_x: 23, max_y: 14 },
+      ...> %Envelope{ min_x: 0, min_y: 5, max_x: 7, max_y: 4 })
+      true
+
+      iex> Envelope.contains?(
+      ...> %Envelope{ min_x: -1, min_y: 5, max_x: 23, max_y: 14 },
+      ...> {0, 11})
+      true
+  """
   @spec contains?(%Envelope{}, %Envelope{} | {number, number}) :: boolean
   def contains?(%Envelope{} = env, {x, y}) do
     env.min_x <= x
@@ -245,4 +263,29 @@ defmodule Envelope do
 
   @spec within?(%Envelope{}, %Envelope{} | {number, number}) :: boolean
   def within?(a, b), do: contains?(b, a)
+
+  @doc ~S"""
+  Returns whether two envelopes touch or intersect.
+
+  ## Examples
+      iex> Envelope.intersects?(
+      ...> %Envelope{ min_x: -1, min_y: -5, max_x: 23, max_y: 14 },
+      ...> %Envelope{ min_x: 0, min_y: 3, max_x: 7, max_y: 4 })
+      true
+
+      iex> Envelope.intersects?(
+      ...> %Envelope{ min_x: -1, min_y: 5, max_x: 23, max_y: 14 },
+      ...> %Envelope{ min_x: 0, min_y: -3, max_x: 7, max_y: 4 })
+      false
+  """
+  @spec intersects?(%Envelope{}, %Envelope{}) :: boolean
+  def intersects?(%Envelope{} = env1, %Envelope{} = env2) do
+    cond do
+      env1.min_x > env2.max_x -> false
+      env1.max_x < env2.min_x -> false
+      env1.min_y > env2.max_y -> false
+      env1.max_y < env2.min_y -> false
+      true -> true
+    end
+  end
 end

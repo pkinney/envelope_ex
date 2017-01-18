@@ -3,7 +3,7 @@ defmodule Envelope.Mixfile do
 
   def project do
     [app: :envelope,
-     version: "0.1.0",
+     version: "0.2.0",
      elixir: "~> 1.2",
      description: description,
      package: package,
@@ -39,7 +39,8 @@ defmodule Envelope.Mixfile do
       files: ["lib/envelope.ex", "mix.exs", "README*"],
       maintainers: ["Powell Kinney"],
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/pkinney/envelope_ex"}
+      links: %{ "GitHub" => "https://github.com/pkinney/envelope_ex",
+                "Docs" => "https://hexdocs.pm/envelope/Envelope.html"}
     ]
   end
 end
