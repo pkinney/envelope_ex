@@ -106,8 +106,11 @@ defmodule Envelope do
       ...> Envelope.expand(a, b)
       %Envelope{ min_x: 0, min_y: -3, max_x: 20, max_y: 11 }
 
-      iex> Envelope.expand(Envelope.empty, %Envelope{ min_x: 0, min_y: -2, max_x: 20, max_y: 11 })
-      %Envelope{ min_x: 0, min_y: -2, max_x: 20, max_y: 11 }
+      iex> Envelope.empty
+      ...> |> Envelope.expand(%Envelope{ min_x: 0, min_y: -2, max_x: 12, max_y: 11 })
+      ...> |> Envelope.expand(%Geo.Polygon{coordinates: [[{2, -2}, {20, -2}, {11, 11}, {2, -2}]]})
+      ...> |> Envelope.expand(%{type: "Point", coordinates: {-1, 3}})
+      %Envelope{ min_x: -1, min_y: -2, max_x: 20, max_y: 11 }
 
       iex> Envelope.expand(Envelope.empty, Envelope.empty) |> Envelope.empty?
       true
@@ -260,6 +263,7 @@ defmodule Envelope do
     && env1.max_x >= env2.max_x
     && env1.max_y >= env2.max_y
   end
+  def contains?(%Envelope{} = env1, other), do: contains?(env1, from_geo(other))
 
   @spec within?(%Envelope{}, %Envelope{} | {number, number}) :: boolean
   def within?(a, b), do: contains?(b, a)

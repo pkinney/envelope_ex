@@ -3,10 +3,10 @@ defmodule Envelope.Mixfile do
 
   def project do
     [app: :envelope,
-     version: "0.3.0",
+     version: "0.3.1",
      elixir: "~> 1.2",
-     description: description,
-     package: package,
+     description: description(),
+     package: package(),
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      test_coverage: [tool: ExCoveralls],
