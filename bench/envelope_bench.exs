@@ -22,27 +22,21 @@ defmodule EnvelopeBench do
     |> Enum.map(&(&1["geometry"]))
     |> Enum.map(&Geo.JSON.decode/1)
 
-  bench "Point in Polygon Envelope contains check" do
-    [polygon] = Enum.take_random(@states, 1)
-    [point] = Enum.take_random(@cities, 1)
+  def take_from(list) do
+    list |> Enum.take_random(1) |> hd
+  end
 
-    Envelope.contains?(polygon, point)
+  bench "Envelope of a Polygon" ,
+    polygon: take_from(@states ++ @counties)
+  do
+    Envelope.from_geo(polygon)
     :ok
   end
 
-  # bench "Point in Polygon Envelope contains check with extracted point" do
-  #   [polygon] = Enum.take_random(@states, 1)
-  #   [%{coordinates: {x, y}}] = Enum.take_random(@cities, 1)
-
-  #   Envelope.contains?(polygon, {x, y})
-  #   :ok
-  # end
-
-  # bench "Point in Polygon Envelope intersects check" do
-  #   [polygon] = Enum.take_random(@states, 1)
-  #   [point] = Enum.take_random(@cities, 1)
-
-  #   Envelope.intersects?(polygon, point)
-  #   :ok
-  # end
+  bench "Envelope of a Point" ,
+    point: take_from(@cities)
+  do
+    Envelope.from_geo(point)
+    :ok
+  end
 end
