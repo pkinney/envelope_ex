@@ -218,7 +218,6 @@ defmodule Envelope do
     width(env) * height(env)
   end
 
-
   @doc ~S"""
   Estimates the area of an Envelope in square meters when the Envelope's coordinates are in degress of longitude and latitude.
 
@@ -242,21 +241,22 @@ defmodule Envelope do
 
       iex> Envelope.contains?(
       ...> %Envelope{ min_x: -1, min_y: 5, max_x: 23, max_y: 14 },
-      ...> %Envelope{ min_x: 0, min_y: 5, max_x: 7, max_y: 4 })
-      true
+      ...> %Envelope{ min_x: -2, min_y: 5, max_x: 7, max_y: 4 })
+      false
 
       iex> Envelope.contains?(
-      ...> %Envelope{ min_x: -1, min_y: 5, max_x: 23, max_y: 14 },
+      ...> %Geo.Polygon{ coordinates: [{-1, 3}, {-3, -1}, { 5, -3}, {4, 12}, {-2, 11}, {-1, 3}] },
       ...> {0, 11})
       true
   """
-  @spec contains?(%Envelope{}, %Envelope{} | {number, number}) :: boolean
+  @spec contains?(%Envelope{} | points, %Envelope{} | points) :: boolean
   def contains?(%Envelope{} = env, {x, y}) do
     env.min_x <= x
     && env.min_y <= y
     && env.max_x >= x
     && env.max_y >= y
   end
+  # def contains?(%Envelope{} = env, %{coordinates: {x, y}}), do: contains?(env, {x, y})
   def contains?(%Envelope{} = env1, %Envelope{} = env2) do
     env1.min_x <= env2.min_x
     && env1.min_y <= env2.min_y
@@ -264,8 +264,23 @@ defmodule Envelope do
     && env1.max_y >= env2.max_y
   end
   def contains?(%Envelope{} = env1, other), do: contains?(env1, from_geo(other))
+  def contains?(a, b), do: contains?(from_geo(a), b)
 
-  @spec within?(%Envelope{}, %Envelope{} | {number, number}) :: boolean
+  @doc ~S"""
+  The inverse of the relationship tested by Envelope#contains?
+
+  ## Examples
+      iex> Envelope.within?(
+      ...> %Envelope{ min_x: 0, min_y: 3, max_x: 7, max_y: 4 },
+      ...> %Envelope{ min_x: -1, min_y: -5, max_x: 23, max_y: 14 })
+      true
+
+      iex> Envelope.within?(
+      ...> %Geo.Polygon{ coordinates: [{-1, 3}, {-3, -1}, { 5, -3}, {4, 12}, {-2, 11}, {-1, 3}] },
+      ...> {0, 11})
+      false
+  """
+  @spec within?(%Envelope{} | points, %Envelope{} | points) :: boolean
   def within?(a, b), do: contains?(b, a)
 
   @doc ~S"""
@@ -282,7 +297,7 @@ defmodule Envelope do
       ...> %Envelope{ min_x: 0, min_y: -3, max_x: 7, max_y: 4 })
       false
   """
-  @spec intersects?(%Envelope{}, %Envelope{}) :: boolean
+  @spec intersects?(%Envelope{} | points, %Envelope{} | points) :: boolean
   def intersects?(%Envelope{} = env1, %Envelope{} = env2) do
     cond do
       env1.min_x > env2.max_x -> false
@@ -292,4 +307,5 @@ defmodule Envelope do
       true -> true
     end
   end
+  def intersects?(a, b), do: intersects?(from_geo(a), from_geo(b))
 end
