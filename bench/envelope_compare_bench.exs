@@ -1,4 +1,4 @@
-defmodule PointPolygonBench do
+defmodule EnvelopeCompareBench do
   use Benchfella
 
   @states Path.join([ "bench", "shapes", "states.json" ])
