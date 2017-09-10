@@ -20,7 +20,8 @@ defmodule Envelope do
 
   defstruct min_x: 0, min_y: 0, max_x: 0, max_y: 0
 
-  @type points :: {number, number}
+  @type point :: {number, number}
+  @type points :: point
                   | list
                   | %{coordinates: list}
                   | %Geo.Point{}
@@ -29,6 +30,8 @@ defmodule Envelope do
                   | %Geo.MultiLineString{}
                   | %Geo.Polygon{}
                   | %Geo.MultiPolygon{}
+
+  alias Distance.GreatCircle
 
   @doc ~S"""
   Returns an `Envelope` that represents the extent of the geometry or
@@ -76,7 +79,6 @@ defmodule Envelope do
   @spec empty() :: %Envelope{}
   def empty, do: %Envelope{min_x: nil, min_y: nil, max_x: nil, max_y: nil}
 
-
   @doc ~S"""
   Returns `true` if the given envelope is empty (has non-existent extent),
   otherwise `false`
@@ -115,7 +117,7 @@ defmodule Envelope do
       iex> Envelope.expand(Envelope.empty, Envelope.empty) |> Envelope.empty?
       true
   """
-  @spec expand(%Envelope{}, {number, number} | %Envelope{} | points) :: %Envelope{}
+  @spec expand(%Envelope{}, point | %Envelope{} | points) :: %Envelope{}
   def expand(%Envelope{} = env1, %Envelope{} = env2) do
     cond do
       Envelope.empty?(env1) -> env2
@@ -176,8 +178,13 @@ defmodule Envelope do
   """
   @spec width_gc(%Envelope{}) :: number
   def width_gc(%Envelope{} = env) do
-    bottom = Distance.GreatCircle.distance({env.min_x, env.min_y}, {env.max_x, env.min_y})
-    top = Distance.GreatCircle.distance({env.min_x, env.max_y}, {env.max_x, env.max_y})
+    bottom = GreatCircle.distance(
+      {env.min_x, env.min_y},
+      {env.max_x, env.min_y})
+    top = GreatCircle.distance(
+      {env.min_x, env.max_y},
+      {env.max_x, env.max_y})
+
     (bottom + top) / 2.0
   end
 
@@ -203,7 +210,7 @@ defmodule Envelope do
   """
   @spec height_gc(%Envelope{}) :: number
   def  height_gc(%Envelope{} = env) do
-    Distance.GreatCircle.distance({env.min_x, env.min_y}, {env.min_x, env.max_y})
+    GreatCircle.distance({env.min_x, env.min_y}, {env.min_x, env.max_y})
   end
 
   @doc ~S"""
@@ -256,7 +263,7 @@ defmodule Envelope do
     && env.max_x >= x
     && env.max_y >= y
   end
-  # def contains?(%Envelope{} = env, %{coordinates: {x, y}}), do: contains?(env, {x, y})
+  def contains?(%Envelope{} = env, %{coordinates: {x, y}}), do: contains?(env, {x, y})
   def contains?(%Envelope{} = env1, %Envelope{} = env2) do
     env1.min_x <= env2.min_x
     && env1.min_y <= env2.min_y

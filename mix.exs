@@ -3,30 +3,32 @@ defmodule Envelope.Mixfile do
 
   def project do
     [app: :envelope,
-     version: "0.4.0",
+     version: "1.0.0",
      elixir: "~> 1.2",
      description: description(),
      package: package(),
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      test_coverage: [tool: ExCoveralls],
+     preferred_cli_env: [coveralls: :test],
      deps: deps()]
   end
 
   def application do
-    [applications: [:logger]]
+    [applications: [:logger, :geo, :distance]]
   end
 
   defp deps do
     [
-      {:geo, "~> 1.0"},
+      {:geo, "~> 1.0 or ~> 2.0"},
       {:distance, "~> 0.2.1"},
       {:benchfella, "~> 0.3.0", only: :dev},
       {:excoveralls, "~> 0.4", only: :test},
-      {:earmark, "~> 0.1", only: :dev},
-      {:ex_doc, "~> 0.11", only: :dev},
-      {:benchfella, "~> 0.3", only: :dev},
-      {:poison, "~> 2.0", only: [:dev, :test]}
+      {:earmark, "~> 1.0", only: :dev},
+      {:ex_doc, "~> 0.16", only: :dev},
+      {:poison, "~> 3.0", only: [:dev, :test]},
+      {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 0.4", only: [:dev], runtime: false}
     ]
   end
 
