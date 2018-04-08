@@ -15,7 +15,8 @@ defmodule EnvelopeTest do
   end
 
   test "create and Envelope from a Point and radius" do
-    assert Envelope.from_geo({2, -2}) |> Envelope.expand_by(3) === %Envelope{
+    env = Envelope.from_geo({2, -2})
+    assert Envelope.expand_by(env, 3) === %Envelope{
              min_x: -1,
              min_y: -5,
              max_x: 5,
