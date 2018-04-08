@@ -2,16 +2,18 @@ defmodule Envelope.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :envelope,
-     version: "1.0.0",
-     elixir: "~> 1.2",
-     description: description(),
-     package: package(),
-     build_embedded: Mix.env == :prod,
-     start_permanent: Mix.env == :prod,
-     test_coverage: [tool: ExCoveralls],
-     preferred_cli_env: [coveralls: :test],
-     deps: deps()]
+    [
+      app: :envelope,
+      version: "1.0.0",
+      elixir: "~> 1.2",
+      description: description(),
+      package: package(),
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [coveralls: :test],
+      deps: deps()
+    ]
   end
 
   def application do
@@ -43,8 +45,10 @@ defmodule Envelope.Mixfile do
       files: ["lib/envelope.ex", "mix.exs", "README*"],
       maintainers: ["Powell Kinney"],
       licenses: ["MIT"],
-      links: %{ "GitHub" => "https://github.com/pkinney/envelope_ex",
-                "Docs" => "https://hexdocs.pm/envelope/Envelope.html"}
+      links: %{
+        "GitHub" => "https://github.com/pkinney/envelope_ex",
+        "Docs" => "https://hexdocs.pm/envelope/Envelope.html"
+      }
     ]
   end
 end

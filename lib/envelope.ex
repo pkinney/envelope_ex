@@ -21,15 +21,16 @@ defmodule Envelope do
   defstruct min_x: 0, min_y: 0, max_x: 0, max_y: 0
 
   @type point :: {number, number}
-  @type points :: point
-                  | list
-                  | %{coordinates: list}
-                  | %Geo.Point{}
-                  | %Geo.MultiPoint{}
-                  | %Geo.LineString{}
-                  | %Geo.MultiLineString{}
-                  | %Geo.Polygon{}
-                  | %Geo.MultiPolygon{}
+  @type points ::
+          point
+          | list
+          | %{coordinates: list}
+          | %Geo.Point{}
+          | %Geo.MultiPoint{}
+          | %Geo.LineString{}
+          | %Geo.MultiLineString{}
+          | %Geo.Polygon{}
+          | %Geo.MultiPolygon{}
 
   alias Distance.GreatCircle
 
@@ -52,12 +53,16 @@ defmodule Envelope do
   """
   @spec from_geo(points) :: %Envelope{}
   def from_geo({x, y}), do: %Envelope{min_x: x, min_y: y, max_x: x, max_y: y}
-  def from_geo(%Geo.Point{coordinates: {x, y}}), do: %Envelope{min_x: x, min_y: y, max_x: x, max_y: y}
+
+  def from_geo(%Geo.Point{coordinates: {x, y}}),
+    do: %Envelope{min_x: x, min_y: y, max_x: x, max_y: y}
+
   def from_geo(%{coordinates: coordinates}), do: from_geo(coordinates)
+
   def from_geo(coordinates) when is_list(coordinates) do
     coordinates
-    |> List.flatten
-    |> Enum.reduce(Envelope.empty, &(expand(&2, &1)))
+    |> List.flatten()
+    |> Enum.reduce(Envelope.empty(), &expand(&2, &1))
   end
 
   @doc ~S"""
@@ -120,16 +125,22 @@ defmodule Envelope do
   @spec expand(%Envelope{}, point | %Envelope{} | points) :: %Envelope{}
   def expand(%Envelope{} = env1, %Envelope{} = env2) do
     cond do
-      Envelope.empty?(env1) -> env2
-      Envelope.empty?(env2) -> env1
-      true                  -> %Envelope{
-                                min_x: min(env1.min_x, env2.min_x),
-                                min_y: min(env1.min_y, env2.min_y),
-                                max_x: max(env1.max_x, env2.max_x),
-                                max_y: max(env1.max_y, env2.max_y)
-                              }
+      Envelope.empty?(env1) ->
+        env2
+
+      Envelope.empty?(env2) ->
+        env1
+
+      true ->
+        %Envelope{
+          min_x: min(env1.min_x, env2.min_x),
+          min_y: min(env1.min_y, env2.min_y),
+          max_x: max(env1.max_x, env2.max_x),
+          max_y: max(env1.max_y, env2.max_y)
+        }
     end
   end
+
   def expand(%Envelope{} = env, other), do: expand(env, from_geo(other))
 
   @doc ~S"""
@@ -145,14 +156,17 @@ defmodule Envelope do
   """
   @spec expand_by(%Envelope{}, number) :: %Envelope{}
   def expand_by(%Envelope{} = env, radius) when is_number(radius) and radius >= 0 do
-    case Envelope.empty? env do
-      true  -> env
-      false -> %Envelope{
-                  min_x: env.min_x - radius,
-                  min_y: env.min_y - radius,
-                  max_x: env.max_x + radius,
-                  max_y: env.max_y + radius
-                }
+    case Envelope.empty?(env) do
+      true ->
+        env
+
+      false ->
+        %Envelope{
+          min_x: env.min_x - radius,
+          min_y: env.min_y - radius,
+          max_x: env.max_x + radius,
+          max_y: env.max_y + radius
+        }
     end
   end
 
@@ -178,12 +192,8 @@ defmodule Envelope do
   """
   @spec width_gc(%Envelope{}) :: number
   def width_gc(%Envelope{} = env) do
-    bottom = GreatCircle.distance(
-      {env.min_x, env.min_y},
-      {env.max_x, env.min_y})
-    top = GreatCircle.distance(
-      {env.min_x, env.max_y},
-      {env.max_x, env.max_y})
+    bottom = GreatCircle.distance({env.min_x, env.min_y}, {env.max_x, env.min_y})
+    top = GreatCircle.distance({env.min_x, env.max_y}, {env.max_x, env.max_y})
 
     (bottom + top) / 2.0
   end
@@ -209,7 +219,7 @@ defmodule Envelope do
       1445536
   """
   @spec height_gc(%Envelope{}) :: number
-  def  height_gc(%Envelope{} = env) do
+  def height_gc(%Envelope{} = env) do
     GreatCircle.distance({env.min_x, env.min_y}, {env.min_x, env.max_y})
   end
 
@@ -258,18 +268,16 @@ defmodule Envelope do
   """
   @spec contains?(%Envelope{} | points, %Envelope{} | points) :: boolean
   def contains?(%Envelope{} = env, {x, y}) do
-    env.min_x <= x
-    && env.min_y <= y
-    && env.max_x >= x
-    && env.max_y >= y
+    env.min_x <= x && env.min_y <= y && env.max_x >= x && env.max_y >= y
   end
+
   def contains?(%Envelope{} = env, %{coordinates: {x, y}}), do: contains?(env, {x, y})
+
   def contains?(%Envelope{} = env1, %Envelope{} = env2) do
-    env1.min_x <= env2.min_x
-    && env1.min_y <= env2.min_y
-    && env1.max_x >= env2.max_x
-    && env1.max_y >= env2.max_y
+    env1.min_x <= env2.min_x && env1.min_y <= env2.min_y && env1.max_x >= env2.max_x &&
+      env1.max_y >= env2.max_y
   end
+
   def contains?(%Envelope{} = env1, other), do: contains?(env1, from_geo(other))
   def contains?(a, b), do: contains?(from_geo(a), b)
 
@@ -314,5 +322,6 @@ defmodule Envelope do
       true -> true
     end
   end
+
   def intersects?(a, b), do: intersects?(from_geo(a), from_geo(b))
 end
