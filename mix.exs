@@ -22,7 +22,6 @@ defmodule Envelope.Mixfile do
     [
       {:geo, "~> 1.0 or ~> 2.0"},
       {:distance, "~> 0.2.1"},
-      {:benchfella, "~> 0.3.0", only: :dev},
       {:excoveralls, "~> 0.4", only: :test},
       {:earmark, "~> 1.0", only: :dev},
       {:ex_doc, "~> 0.16", only: :dev},
