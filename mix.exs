@@ -26,7 +26,7 @@ defmodule Envelope.Mixfile do
       {:distance, "~> 0.2.1"},
       {:excoveralls, "~> 0.4", only: :test},
       {:earmark, "~> 1.0", only: :dev},
-      {:ex_doc, "~> 0.16", only: :dev},
+      {:ex_doc, "~> 0.19", only: :dev},
       {:poison, "~> 3.0", only: [:dev, :test]},
       {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 0.4", only: [:dev], runtime: false}

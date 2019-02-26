@@ -66,6 +66,55 @@ defmodule Envelope do
   end
 
   @doc ~S"""
+  Returns a `Geo.Polygon`, `Geo.LineString`, or `Geo.Point` that is equal to
+  the area covered by the given `Envelope`.
+
+  Note that they exact type of the Geometry returned will depend on the nature
+  of the Envelope:
+
+   - `Geo.Point` will be returned when an envelope has zero area and all
+     extents are equal.
+   - `Geo.LineString` will be returned when an envelope has zero area
+     and it extends along only one axes.
+   - `Geo.Polygon` will be returned when an envelope has non-zeron area
+
+  ## Examples
+      iex> Envelope.to_geo %Envelope{ max_x: 16, max_y: 10, min_x: 4, min_y: 2.5 }
+      %Geo.Polygon{coordinates: [[{4, 2.5}, {4, 10}, {16, 10}, {16, 2.5}, {4, 2.5}]]}
+
+      iex> Envelope.to_geo %Envelope{ min_x: 1, min_y: 3, max_x: 1, max_y: 5 }
+      %Geo.LineString{coordinates: [{1, 3}, {1, 5}]}
+
+      iex> Envelope.to_geo %Envelope{ min_x: 1, min_y: 3, max_x: 4, max_y: 3 }
+      %Geo.LineString{coordinates: [{1, 3}, {4, 3}]}
+
+      iex> Envelope.to_geo %Envelope{ min_x: 1, min_y: 3, max_x: 1, max_y: 3 }
+      %Geo.Point{coordinates: {1, 3}}
+  """
+  @spec to_geo(%Envelope{}) :: %Geo.Polygon{} | %Geo.Point{} | %Geo.LineString{}
+  def to_geo(%Envelope{min_x: x, min_y: y, max_x: x, max_y: y}),
+    do: %Geo.Point{coordinates: {x, y}}
+
+  def to_geo(%Envelope{min_x: x, min_y: min_y, max_x: x, max_y: max_y}),
+    do: %Geo.LineString{coordinates: [{x, min_y}, {x, max_y}]}
+
+  def to_geo(%Envelope{min_x: min_x, min_y: y, max_x: max_x, max_y: y}),
+    do: %Geo.LineString{coordinates: [{min_x, y}, {max_x, y}]}
+
+  def to_geo(env = %Envelope{}),
+    do: %Geo.Polygon{
+      coordinates: [
+        [
+          {env.min_x, env.min_y},
+          {env.min_x, env.max_y},
+          {env.max_x, env.max_y},
+          {env.max_x, env.min_y},
+          {env.min_x, env.min_y}
+        ]
+      ]
+    }
+
+  @doc ~S"""
   Returns an `Envelope` that represents no extent at all.  This is primarily
   a convenience function for starting an expanding Envelope. Internally,
   "empty" Envelopes are represented with `nil` values for all extents.
