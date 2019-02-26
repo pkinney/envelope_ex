@@ -92,25 +92,27 @@ defmodule Envelope do
       %Geo.Point{coordinates: {1, 3}}
   """
   @spec to_geo(%Envelope{}) :: %Geo.Polygon{} | %Geo.Point{} | %Geo.LineString{}
-  def to_geo(%Envelope{min_x: x, min_y: y, max_x: x, max_y: y}), 
+  def to_geo(%Envelope{min_x: x, min_y: y, max_x: x, max_y: y}),
     do: %Geo.Point{coordinates: {x, y}}
 
-  def to_geo(%Envelope{min_x: x, min_y: min_y, max_x: x, max_y: max_y}), 
+  def to_geo(%Envelope{min_x: x, min_y: min_y, max_x: x, max_y: max_y}),
     do: %Geo.LineString{coordinates: [{x, min_y}, {x, max_y}]}
 
   def to_geo(%Envelope{min_x: min_x, min_y: y, max_x: max_x, max_y: y}),
     do: %Geo.LineString{coordinates: [{min_x, y}, {max_x, y}]}
 
   def to_geo(env = %Envelope{}),
-    do: %Geo.Polygon{coordinates: [
-      [
-        {env.min_x, env.min_y},
-        {env.min_x, env.max_y},
-        {env.max_x, env.max_y},
-        {env.max_x, env.min_y},
-        {env.min_x, env.min_y}
+    do: %Geo.Polygon{
+      coordinates: [
+        [
+          {env.min_x, env.min_y},
+          {env.min_x, env.max_y},
+          {env.max_x, env.max_y},
+          {env.max_x, env.min_y},
+          {env.min_x, env.min_y}
+        ]
       ]
-    ]}
+    }
 
   @doc ~S"""
   Returns an `Envelope` that represents no extent at all.  This is primarily
