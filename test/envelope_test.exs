@@ -48,7 +48,8 @@ defmodule EnvelopeTest do
 
   test "expand an envelope with a geometry" do
     env =
-      Envelope.from_geo(%Geo.Polygon{coordinates: [[{2, -2}, {20, -2}, {11, 11}, {2, -2}]]})
+      %Geo.Polygon{coordinates: [[{2, -2}, {20, -2}, {11, 11}, {2, -2}]]}
+      |> Envelope.from_geo()
       |> Envelope.expand(%Geo.Point{coordinates: {3, -5}})
 
     assert env === %Envelope{min_x: 2, min_y: -5, max_x: 20, max_y: 11}

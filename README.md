@@ -11,7 +11,7 @@ complicated geometries.
 
 ```elixir
 defp deps do
-  [{:envelope, "~> 1.1"}]
+  [{:envelope, "~> 1.2"}]
 end
 ```
 

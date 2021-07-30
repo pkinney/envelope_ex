@@ -20,6 +20,12 @@ defmodule Envelope do
 
   defstruct min_x: 0, min_y: 0, max_x: 0, max_y: 0
 
+  @type t() :: %__MODULE__{
+          min_x: number() | nil,
+          min_y: number() | nil,
+          max_x: number() | nil,
+          max_y: number() | nil
+        }
   @type point :: {number, number}
   @type points ::
           point
@@ -51,7 +57,7 @@ defmodule Envelope do
       iex> Envelope.from_geo {1, 3}
       %Envelope{ min_x: 1, min_y: 3, max_x: 1, max_y: 3 }
   """
-  @spec from_geo(points) :: %Envelope{}
+  @spec from_geo(points()) :: t()
   def from_geo({x, y}), do: %Envelope{min_x: x, min_y: y, max_x: x, max_y: y}
 
   def from_geo(%Geo.Point{coordinates: {x, y}}),
@@ -91,7 +97,7 @@ defmodule Envelope do
       iex> Envelope.to_geo %Envelope{ min_x: 1, min_y: 3, max_x: 1, max_y: 3 }
       %Geo.Point{coordinates: {1, 3}}
   """
-  @spec to_geo(%Envelope{}) :: %Geo.Polygon{} | %Geo.Point{} | %Geo.LineString{}
+  @spec to_geo(t()) :: %Geo.Polygon{} | %Geo.Point{} | %Geo.LineString{}
   def to_geo(%Envelope{min_x: x, min_y: y, max_x: x, max_y: y}),
     do: %Geo.Point{coordinates: {x, y}}
 
@@ -101,7 +107,7 @@ defmodule Envelope do
   def to_geo(%Envelope{min_x: min_x, min_y: y, max_x: max_x, max_y: y}),
     do: %Geo.LineString{coordinates: [{min_x, y}, {max_x, y}]}
 
-  def to_geo(env = %Envelope{}),
+  def to_geo(%Envelope{} = env),
     do: %Geo.Polygon{
       coordinates: [
         [
@@ -130,7 +136,7 @@ defmodule Envelope do
       iex> Envelope.empty |> Envelope.empty?
       true
   """
-  @spec empty() :: %Envelope{}
+  @spec empty() :: t()
   def empty, do: %Envelope{min_x: nil, min_y: nil, max_x: nil, max_y: nil}
 
   @doc ~S"""
@@ -144,7 +150,7 @@ defmodule Envelope do
       iex> %Envelope{ min_x: 0, min_y: -1, max_x: 2, max_y: 3 } |> Envelope.empty?
       false
   """
-  @spec empty?(%Envelope{}) :: boolean
+  @spec empty?(t()) :: boolean()
   def empty?(%Envelope{min_x: nil, min_y: nil, max_x: nil, max_y: nil}), do: true
   def empty?(%Envelope{}), do: false
 
@@ -171,7 +177,7 @@ defmodule Envelope do
       iex> Envelope.expand(Envelope.empty, Envelope.empty) |> Envelope.empty?
       true
   """
-  @spec expand(%Envelope{}, point | %Envelope{} | points) :: %Envelope{}
+  @spec expand(t(), point() | t() | points()) :: t()
   def expand(%Envelope{} = env1, %Envelope{} = env2) do
     cond do
       Envelope.empty?(env1) ->
@@ -203,7 +209,7 @@ defmodule Envelope do
       iex> Envelope.expand_by(Envelope.empty, 4) |> Envelope.empty?
       true
   """
-  @spec expand_by(%Envelope{}, number) :: %Envelope{}
+  @spec expand_by(t(), number()) :: t()
   def expand_by(%Envelope{} = env, radius) when is_number(radius) and radius >= 0 do
     case Envelope.empty?(env) do
       true ->
@@ -226,7 +232,7 @@ defmodule Envelope do
       iex> Envelope.width(Envelope.from_geo(%Geo.Polygon{coordinates: [[{2, -2}, {20, -2}, {11, 11}, {2, -2}]]}))
       18
   """
-  @spec width(%Envelope{}) :: number
+  @spec width(t()) :: number()
   def width(%Envelope{} = env) do
     env.max_x - env.min_x
   end
@@ -239,7 +245,7 @@ defmodule Envelope do
       iex> Envelope.width_gc(Envelope.from_geo(%Geo.Polygon{coordinates: [[{2, -2}, {20, -2}, {11, 11}, {2, -2}]]})) |> round
       1982362
   """
-  @spec width_gc(%Envelope{}) :: number
+  @spec width_gc(t()) :: number()
   def width_gc(%Envelope{} = env) do
     bottom = GreatCircle.distance({env.min_x, env.min_y}, {env.max_x, env.min_y})
     top = GreatCircle.distance({env.min_x, env.max_y}, {env.max_x, env.max_y})
@@ -254,7 +260,7 @@ defmodule Envelope do
       iex> Envelope.height(Envelope.from_geo(%Geo.Polygon{coordinates: [[{2, -2}, {20, -2}, {11, 11}, {2, -2}]]}))
       13
   """
-  @spec height(%Envelope{}) :: number
+  @spec height(t()) :: number()
   def height(%Envelope{} = env) do
     env.max_y - env.min_y
   end
@@ -267,7 +273,7 @@ defmodule Envelope do
       iex> Envelope.height_gc(Envelope.from_geo(%Geo.Polygon{coordinates: [[{2, -2}, {20, -2}, {11, 11}, {2, -2}]]})) |> round
       1445536
   """
-  @spec height_gc(%Envelope{}) :: number
+  @spec height_gc(t()) :: number()
   def height_gc(%Envelope{} = env) do
     GreatCircle.distance({env.min_x, env.min_y}, {env.min_x, env.max_y})
   end
@@ -279,7 +285,7 @@ defmodule Envelope do
       iex> Envelope.area(Envelope.from_geo(%Geo.Polygon{coordinates: [[{2, -2}, {20, -2}, {11, 11}, {2, -2}]]}))
       234
   """
-  @spec area(%Envelope{}) :: number
+  @spec area(t()) :: number()
   def area(%Envelope{} = env) do
     width(env) * height(env)
   end
@@ -291,7 +297,7 @@ defmodule Envelope do
       iex> Envelope.area_gc(Envelope.from_geo(%Geo.Polygon{coordinates: [[{2, -2}, {20, -2}, {11, 11}, {2, -2}]]})) |> round
       2865575088701
   """
-  @spec area_gc(%Envelope{}) :: number
+  @spec area_gc(t()) :: number()
   def area_gc(%Envelope{} = env) do
     width_gc(env) * height_gc(env)
   end
@@ -315,7 +321,7 @@ defmodule Envelope do
       ...> {0, 11})
       true
   """
-  @spec contains?(%Envelope{} | points, %Envelope{} | points) :: boolean
+  @spec contains?(t() | points(), t() | points()) :: boolean()
   def contains?(%Envelope{} = env, {x, y}) do
     env.min_x <= x && env.min_y <= y && env.max_x >= x && env.max_y >= y
   end
@@ -344,7 +350,7 @@ defmodule Envelope do
       ...> {0, 11})
       false
   """
-  @spec within?(%Envelope{} | points, %Envelope{} | points) :: boolean
+  @spec within?(t() | points(), t() | points()) :: boolean()
   def within?(a, b), do: contains?(b, a)
 
   @doc ~S"""
@@ -361,7 +367,7 @@ defmodule Envelope do
       ...> %Envelope{ min_x: 0, min_y: -3, max_x: 7, max_y: 4 })
       false
   """
-  @spec intersects?(%Envelope{} | points, %Envelope{} | points) :: boolean
+  @spec intersects?(t() | points(), t() | points()) :: boolean()
   def intersects?(%Envelope{} = env1, %Envelope{} = env2) do
     cond do
       env1.min_x > env2.max_x -> false
