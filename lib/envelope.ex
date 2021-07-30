@@ -58,7 +58,8 @@ defmodule Envelope do
       %Envelope{ min_x: 1, min_y: 3, max_x: 1, max_y: 3 }
   """
   @spec from_geo(points()) :: t()
-  def from_geo({x, y}), do: %Envelope{min_x: x, min_y: y, max_x: x, max_y: y}
+  def from_geo({x, y}) when is_number(x) and is_number(y),
+    do: %Envelope{min_x: x, min_y: y, max_x: x, max_y: y}
 
   def from_geo(%Geo.Point{coordinates: {x, y}}),
     do: %Envelope{min_x: x, min_y: y, max_x: x, max_y: y}

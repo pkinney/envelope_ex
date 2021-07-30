@@ -57,4 +57,10 @@ defmodule EnvelopeTest do
     assert Envelope.expand(Envelope.empty(), %Geo.Point{coordinates: {3, -5}}) ===
              %Envelope{min_x: 3, min_y: -5, max_x: 3, max_y: -5}
   end
+
+  test "enforce proper coordinate format" do
+    assert_raise FunctionClauseError, fn ->
+      Envelope.from_geo({:ok, {23, 9}})
+    end
+  end
 end
