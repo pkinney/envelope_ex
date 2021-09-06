@@ -1,58 +1,56 @@
 defmodule Envelope.Mixfile do
   use Mix.Project
 
-  def project() do
+  @source_url "https://github.com/pkinney/envelope_ex"
+  @version "1.3.1"
+
+  def project do
     [
       app: :envelope,
-      version: "1.3.1",
+      version: @version,
       elixir: "~> 1.2",
-      description: description(),
-      package: package(),
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [coveralls: :test],
+      aliases: aliases(),
       deps: deps(),
-      aliases: aliases()
+      docs: docs(),
+      package: package()
     ]
   end
 
-  def application() do
+  def application do
     [applications: [:logger, :geo, :distance]]
   end
 
-  defp deps() do
+  defp deps do
     [
       {:geo, "~> 1.0 or ~> 2.0 or ~> 3.0"},
       {:distance, "~> 0.2.1 or ~> 1.0"},
       {:excoveralls, "~> 0.4", only: :test},
-      {:earmark, "~> 1.0", only: :dev},
-      {:ex_doc, "~> 0.24", only: :dev, runtime: false},
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
       {:poison, "~> 3.0", only: [:dev, :test]},
       {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 0.4", only: [:dev], runtime: false}
     ]
   end
 
-  defp description do
-    """
-    A library for calculating envelopes of geometries and tools to compare them.
-    """
-  end
-
-  defp package() do
+  defp package do
     [
+      description:
+        "A library for calculating envelopes of geometries " <>
+          "and tools to compare them.",
       files: ["lib/envelope.ex", "mix.exs", "README*"],
       maintainers: ["Powell Kinney"],
       licenses: ["MIT"],
       links: %{
-        "GitHub" => "https://github.com/pkinney/envelope_ex",
-        "Docs" => "https://hexdocs.pm/envelope/Envelope.html"
+        "GitHub" => @source_url
       }
     ]
   end
 
-  defp aliases() do
+  defp aliases do
     [
       validate: [
         "clean",
@@ -61,6 +59,19 @@ defmodule Envelope.Mixfile do
         "credo",
         "dialyzer"
       ]
+    ]
+  end
+
+  defp docs do
+    [
+      extras: [
+        "LICENSE.md": [title: "License"],
+        "README.md": [title: "Overview"]
+      ],
+      main: "readme",
+      source_url: @source_url,
+      source_ref: "master",
+      formatters: ["html"]
     ]
   end
 end
