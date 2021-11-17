@@ -4,7 +4,7 @@ defmodule Envelope.Mixfile do
   def project do
     [
       app: :envelope,
-      version: "1.2.2",
+      version: "1.3.0",
       elixir: "~> 1.2",
       description: description(),
       package: package(),

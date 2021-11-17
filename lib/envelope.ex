@@ -304,6 +304,25 @@ defmodule Envelope do
   end
 
   @doc ~S"""
+  Returns the center point of an envelope.
+
+  ## Examples
+  iex> %Envelope{ min_x: 0, min_y: -1, max_x: 2, max_y: 5 } |> Envelope.center()
+  {1.0, 2.0}
+
+  iex> Envelope.empty() |> Envelope.center()
+  nil
+  """
+  @spec center(t()) :: {number(), number()}
+  def center(env) do
+    if Envelope.empty?(env) do
+      nil
+    else
+      {(env.min_x + env.max_x) / 2.0, (env.min_y + env.max_y) / 2.0}
+    end
+  end
+
+  @doc ~S"""
   Returns whether one envelope fully contains another envelope or point.
 
   ## Examples
