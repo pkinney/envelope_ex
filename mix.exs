@@ -1,10 +1,10 @@
 defmodule Envelope.Mixfile do
   use Mix.Project
 
-  def project do
+  def project() do
     [
       app: :envelope,
-      version: "1.3.0",
+      version: "1.3.1",
       elixir: "~> 1.2",
       description: description(),
       package: package(),
@@ -12,18 +12,19 @@ defmodule Envelope.Mixfile do
       start_permanent: Mix.env() == :prod,
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [coveralls: :test],
-      deps: deps()
+      deps: deps(),
+      aliases: aliases()
     ]
   end
 
-  def application do
+  def application() do
     [applications: [:logger, :geo, :distance]]
   end
 
-  defp deps do
+  defp deps() do
     [
       {:geo, "~> 1.0 or ~> 2.0 or ~> 3.0"},
-      {:distance, "~> 0.2.1"},
+      {:distance, "~> 0.2.1 or ~> 1.0"},
       {:excoveralls, "~> 0.4", only: :test},
       {:earmark, "~> 1.0", only: :dev},
       {:ex_doc, "~> 0.24", only: :dev, runtime: false},
@@ -39,7 +40,7 @@ defmodule Envelope.Mixfile do
     """
   end
 
-  defp package do
+  defp package() do
     [
       files: ["lib/envelope.ex", "mix.exs", "README*"],
       maintainers: ["Powell Kinney"],
@@ -48,6 +49,18 @@ defmodule Envelope.Mixfile do
         "GitHub" => "https://github.com/pkinney/envelope_ex",
         "Docs" => "https://hexdocs.pm/envelope/Envelope.html"
       }
+    ]
+  end
+
+  defp aliases() do
+    [
+      validate: [
+        "clean",
+        "compile --warnings-as-errors",
+        "format --check-formatted",
+        "credo",
+        "dialyzer"
+      ]
     ]
   end
 end
