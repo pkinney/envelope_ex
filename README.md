@@ -1,6 +1,6 @@
 # Envelope
 
-[![Build Status](https://travis-ci.org/pkinney/envelope_ex.svg?branch=master)](https://travis-ci.org/pkinney/envelope_ex)
+[![CI](https://github.com/pkinney/envelope_ex/actions/workflows/ci.yaml/badge.svg)](https://github.com/pkinney/envelope_ex/actions/workflows/ci.yaml)
 [![Hex.pm](https://img.shields.io/hexpm/v/envelope.svg)](https://hex.pm/packages/envelope)
 
 A library for calculating envelopes (axis-aligned bounding boxes) of geometries and tools to compare them.
@@ -11,7 +11,7 @@ complicated geometries.
 
 ```elixir
 defp deps do
-  [{:envelope, "~> 1.2"}]
+  [{:envelope, "~> 1.3"}]
 end
 ```
 
