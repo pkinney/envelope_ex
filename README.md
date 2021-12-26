@@ -1,7 +1,11 @@
 # Envelope
 
 [![CI](https://github.com/pkinney/envelope_ex/actions/workflows/ci.yaml/badge.svg)](https://github.com/pkinney/envelope_ex/actions/workflows/ci.yaml)
-[![Hex.pm](https://img.shields.io/hexpm/v/envelope.svg)](https://hex.pm/packages/envelope)
+[![Hex Version](https://img.shields.io/hexpm/v/envelope.svg)](https://hex.pm/packages/envelope)
+[![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/envelope/)
+[![Total Download](https://img.shields.io/hexpm/dt/envelope.svg)](https://hex.pm/packages/envelope)
+[![License](https://img.shields.io/hexpm/l/envelope.svg)](https://github.com/pkinney/envelope_ex/blob/master/LICENSE.md)
+[![Last Updated](https://img.shields.io/github/last-commit/pkinney/envelope_ex.svg)](https://github.com/pkinney/envelope_ex/commits/master)
 
 A library for calculating envelopes (axis-aligned bounding boxes) of geometries and tools to compare them.
 This is most useful as an approximation of spacial relationships between more
@@ -11,7 +15,9 @@ complicated geometries.
 
 ```elixir
 defp deps do
-  [{:envelope, "~> 1.3"}]
+  [
+    {:envelope, "~> 1.3"}
+  ]
 end
 ```
 
@@ -52,7 +58,7 @@ Envelope.contains?(
 # => false
 ```
 
-## Applicaiton
+## Application
 
 In the context of a larger Geometry/GIS application, Envelopes can be used to
 drastically decrease processing overhead for comparing two geometries that are
@@ -88,8 +94,15 @@ def intersect?(poly1, poly2) do
 end
 ```
 
-or more concisely
+or more concisely:
 
 ```elixir
 Envelope.intersects?(Envelope.from_geo(poly1), Envelope.from_geo(poly2)) && Topo.intersects?(poly1, poly2)
 ```
+
+## Copyright and License
+
+Copyright (c) 2017 Powell Kinney
+
+This work is free. You can redistribute it and/or modify it under the
+terms of the MIT License. See the [LICENSE.md](./LICENSE.md) file for more details.

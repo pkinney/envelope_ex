@@ -1,6 +1,7 @@
 defmodule Envelope do
   @moduledoc ~S"""
   A library for calculating envelopes of geometries and tools to compare them.
+
   This is most useful as an approximation of spacial relationships between more
   complicated geometries.
 
@@ -10,12 +11,13 @@ defmodule Envelope do
       iex> Envelope.from_geo( %Geo.LineString{coordinates: [{1, 3}, {2, -1}, {0, -1}, {1, 3}]} )
       %Envelope{ min_x: 0, min_y: -1, max_x: 2, max_y: 3 }
 
-  You can also expand an existing Envelope with a geometry or another Envelope
+  You can also expand an existing Envelope with a geometry or another Envelope:
 
       iex> a = Envelope.from_geo( %Geo.Polygon{coordinates: [[{2, -2}, {20, -2}, {11, 11}, {2, -2}]]} )
       ...> b = %Geo.LineString{coordinates: [{1, 3}, {2, -1}, {0, -1}, {1, 3}]}
       ...> Envelope.expand(a, b)
       %Envelope{ min_x: 0, min_y: -2, max_x: 20, max_y: 11 }
+
   """
 
   defstruct min_x: 0, min_y: 0, max_x: 0, max_y: 0
@@ -45,6 +47,7 @@ defmodule Envelope do
   coordinates.
 
   ## Examples
+
       iex> Envelope.from_geo %{coordinates: [{11, 10}, {4, 2.5}, {16, 2.5}, {11, 10}]}
       %Envelope{ max_x: 16, max_y: 10, min_x: 4, min_y: 2.5 }
 
@@ -56,6 +59,7 @@ defmodule Envelope do
 
       iex> Envelope.from_geo {1, 3}
       %Envelope{ min_x: 1, min_y: 3, max_x: 1, max_y: 3 }
+
   """
   @spec from_geo(points()) :: t()
   def from_geo({x, y}) when is_number(x) and is_number(y),
@@ -86,6 +90,7 @@ defmodule Envelope do
    - `Geo.Polygon` will be returned when an envelope has non-zeron area
 
   ## Examples
+
       iex> Envelope.to_geo %Envelope{ max_x: 16, max_y: 10, min_x: 4, min_y: 2.5 }
       %Geo.Polygon{coordinates: [[{4, 2.5}, {4, 10}, {16, 10}, {16, 2.5}, {4, 2.5}]]}
 
@@ -97,6 +102,7 @@ defmodule Envelope do
 
       iex> Envelope.to_geo %Envelope{ min_x: 1, min_y: 3, max_x: 1, max_y: 3 }
       %Geo.Point{coordinates: {1, 3}}
+
   """
   @spec to_geo(t()) :: %Geo.Polygon{} | %Geo.Point{} | %Geo.LineString{}
   def to_geo(%Envelope{min_x: x, min_y: y, max_x: x, max_y: y}),
@@ -122,34 +128,40 @@ defmodule Envelope do
     }
 
   @doc ~S"""
-  Returns an `Envelope` that represents no extent at all.  This is primarily
-  a convenience function for starting an expanding Envelope. Internally,
-  "empty" Envelopes are represented with `nil` values for all extents.
+  Returns an `Envelope` that represents no extent at all.
+
+  This is primarily a convenience function for starting an expanding Envelope.
+  Internally, "empty" Envelopes are represented with `nil` values for all
+  extents.
 
   Note that there is a important distinction between an empty Envelope and
   an Envelope around a single Point (where the min and max for each axis are
   real numbers but may represent zero area).
 
   ## Examples
+
       iex> Envelope.empty
       %Envelope{max_x: nil, max_y: nil, min_x: nil, min_y: nil}
 
       iex> Envelope.empty |> Envelope.empty?
       true
+
   """
   @spec empty() :: t()
   def empty, do: %Envelope{min_x: nil, min_y: nil, max_x: nil, max_y: nil}
 
   @doc ~S"""
   Returns `true` if the given envelope is empty (has non-existent extent),
-  otherwise `false`
+  otherwise `false`.
 
   ## Examples
+
       iex> Envelope.empty |> Envelope.empty?
       true
 
       iex> %Envelope{ min_x: 0, min_y: -1, max_x: 2, max_y: 3 } |> Envelope.empty?
       false
+
   """
   @spec empty?(t()) :: boolean()
   def empty?(%Envelope{min_x: nil, min_y: nil, max_x: nil, max_y: nil}), do: true
@@ -159,6 +171,7 @@ defmodule Envelope do
   Returns a new Envelope that is expanded to include an additional geometry.
 
   ## Examples
+
       iex> a = Envelope.from_geo(%Geo.Polygon{coordinates: [[{2, -2}, {20, -2}, {11, 11}, {2, -2}]]})
       ...> b = %Geo.LineString{coordinates: [{1, 3}, {2, -1}, {0, -1}, {1, 3}]}
       ...> Envelope.expand(a, b)
@@ -177,6 +190,7 @@ defmodule Envelope do
 
       iex> Envelope.expand(Envelope.empty, Envelope.empty) |> Envelope.empty?
       true
+
   """
   @spec expand(t(), point() | t() | points()) :: t()
   def expand(%Envelope{} = env1, %Envelope{} = env2) do
@@ -204,11 +218,13 @@ defmodule Envelope do
   in each axis by `radius`.
 
   ## Examples
+
       iex> Envelope.expand_by(Envelope.from_geo(%Geo.Polygon{coordinates: [[{2, -2}, {20, -2}, {11, 11}, {2, -2}]]}), 3)
       %Envelope{ min_x: -1, min_y: -5, max_x: 23, max_y: 14 }
 
       iex> Envelope.expand_by(Envelope.empty, 4) |> Envelope.empty?
       true
+
   """
   @spec expand_by(t(), number()) :: t()
   def expand_by(%Envelope{} = env, radius) when is_number(radius) and radius >= 0 do
@@ -230,8 +246,10 @@ defmodule Envelope do
   Simple distance from the left bounadary to the right boundary of the Envelope.
 
   ## Examples
+
       iex> Envelope.width(Envelope.from_geo(%Geo.Polygon{coordinates: [[{2, -2}, {20, -2}, {11, 11}, {2, -2}]]}))
       18
+
   """
   @spec width(t()) :: number()
   def width(%Envelope{} = env) do
@@ -239,12 +257,15 @@ defmodule Envelope do
   end
 
   @doc ~S"""
-  When an Envelope's coordinates are in degress of longitude and latitude, calculates the
-  great circle distance between the center of the east and west extent in meters.
+  When an Envelope's coordinates are in degrees of longitude and latitude,
+  calculates the great circle distance between the center of the east and west
+  extent in meters.
 
   ## Examples
+
       iex> Envelope.width_gc(Envelope.from_geo(%Geo.Polygon{coordinates: [[{2, -2}, {20, -2}, {11, 11}, {2, -2}]]})) |> round
       1982362
+
   """
   @spec width_gc(t()) :: number()
   def width_gc(%Envelope{} = env) do
@@ -255,11 +276,13 @@ defmodule Envelope do
   end
 
   @doc ~S"""
-  Simple distance from the bottom bounadary to the top boundary of the Envelope.
+  Simple distance from the bottom boundary to the top boundary of the Envelope.
 
   ## Examples
+
       iex> Envelope.height(Envelope.from_geo(%Geo.Polygon{coordinates: [[{2, -2}, {20, -2}, {11, 11}, {2, -2}]]}))
       13
+
   """
   @spec height(t()) :: number()
   def height(%Envelope{} = env) do
@@ -267,12 +290,15 @@ defmodule Envelope do
   end
 
   @doc ~S"""
-  When an Envelope's coordinates are in degress of longitude and latitude, calculates the
-  great circle distance between the center of the north and south extent in meters.
+  When an Envelope's coordinates are in degrees of longitude and latitude,
+  calculates the great circle distance between the center of the north and
+  south extent in meters.
 
   ## Examples
+
       iex> Envelope.height_gc(Envelope.from_geo(%Geo.Polygon{coordinates: [[{2, -2}, {20, -2}, {11, 11}, {2, -2}]]})) |> round
       1445536
+
   """
   @spec height_gc(t()) :: number()
   def height_gc(%Envelope{} = env) do
@@ -283,8 +309,10 @@ defmodule Envelope do
   Calculates the simple area of an Envelope.
 
   ## Examples
+
       iex> Envelope.area(Envelope.from_geo(%Geo.Polygon{coordinates: [[{2, -2}, {20, -2}, {11, 11}, {2, -2}]]}))
       234
+
   """
   @spec area(t()) :: number()
   def area(%Envelope{} = env) do
@@ -292,11 +320,14 @@ defmodule Envelope do
   end
 
   @doc ~S"""
-  Estimates the area of an Envelope in square meters when the Envelope's coordinates are in degress of longitude and latitude.
+  Estimates the area of an Envelope in square meters when the Envelope's
+  coordinates are in degrees of longitude and latitude.
 
   ## Examples
+
       iex> Envelope.area_gc(Envelope.from_geo(%Geo.Polygon{coordinates: [[{2, -2}, {20, -2}, {11, 11}, {2, -2}]]})) |> round
       2865575088701
+
   """
   @spec area_gc(t()) :: number()
   def area_gc(%Envelope{} = env) do
@@ -326,6 +357,7 @@ defmodule Envelope do
   Returns whether one envelope fully contains another envelope or point.
 
   ## Examples
+
       iex> Envelope.contains?(
       ...> %Envelope{ min_x: -1, min_y: -5, max_x: 23, max_y: 14 },
       ...> %Envelope{ min_x: 0, min_y: 3, max_x: 7, max_y: 4 })
@@ -340,6 +372,7 @@ defmodule Envelope do
       ...> %Geo.Polygon{ coordinates: [{-1, 3}, {-3, -1}, { 5, -3}, {4, 12}, {-2, 11}, {-1, 3}] },
       ...> {0, 11})
       true
+
   """
   @spec contains?(t() | points(), t() | points()) :: boolean()
   def contains?(%Envelope{} = env, {x, y}) do
@@ -360,6 +393,7 @@ defmodule Envelope do
   The inverse of the relationship tested by Envelope#contains?
 
   ## Examples
+
       iex> Envelope.within?(
       ...> %Envelope{ min_x: 0, min_y: 3, max_x: 7, max_y: 4 },
       ...> %Envelope{ min_x: -1, min_y: -5, max_x: 23, max_y: 14 })
@@ -369,6 +403,7 @@ defmodule Envelope do
       ...> %Geo.Polygon{ coordinates: [{-1, 3}, {-3, -1}, { 5, -3}, {4, 12}, {-2, 11}, {-1, 3}] },
       ...> {0, 11})
       false
+
   """
   @spec within?(t() | points(), t() | points()) :: boolean()
   def within?(a, b), do: contains?(b, a)
@@ -377,6 +412,7 @@ defmodule Envelope do
   Returns whether two envelopes touch or intersect.
 
   ## Examples
+
       iex> Envelope.intersects?(
       ...> %Envelope{ min_x: -1, min_y: -5, max_x: 23, max_y: 14 },
       ...> %Envelope{ min_x: 0, min_y: 3, max_x: 7, max_y: 4 })
@@ -386,6 +422,7 @@ defmodule Envelope do
       ...> %Envelope{ min_x: -1, min_y: 5, max_x: 23, max_y: 14 },
       ...> %Envelope{ min_x: 0, min_y: -3, max_x: 7, max_y: 4 })
       false
+
   """
   @spec intersects?(t() | points(), t() | points()) :: boolean()
   def intersects?(%Envelope{} = env1, %Envelope{} = env2) do
