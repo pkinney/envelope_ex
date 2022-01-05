@@ -87,7 +87,7 @@ defmodule Envelope do
 
   ## Examples
       iex> Envelope.to_geo %Envelope{ max_x: 16, max_y: 10, min_x: 4, min_y: 2.5 }
-      %Geo.Polygon{coordinates: [[{4, 2.5}, {4, 10}, {16, 10}, {16, 2.5}, {4, 2.5}]]}
+      %Geo.Polygon{coordinates: [[{4, 2.5}, {16, 2.5}, {16, 10}, {4, 10}, {4, 2.5}]]}
 
       iex> Envelope.to_geo %Envelope{ min_x: 1, min_y: 3, max_x: 1, max_y: 5 }
       %Geo.LineString{coordinates: [{1, 3}, {1, 5}]}
@@ -113,9 +113,9 @@ defmodule Envelope do
       coordinates: [
         [
           {env.min_x, env.min_y},
-          {env.min_x, env.max_y},
-          {env.max_x, env.max_y},
           {env.max_x, env.min_y},
+          {env.max_x, env.max_y},
+          {env.min_x, env.max_y},
           {env.min_x, env.min_y}
         ]
       ]

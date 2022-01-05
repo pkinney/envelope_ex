@@ -4,7 +4,7 @@ defmodule Envelope.Mixfile do
   def project() do
     [
       app: :envelope,
-      version: "1.3.1",
+      version: "1.4.0",
       elixir: "~> 1.2",
       description: description(),
       package: package(),
@@ -30,7 +30,8 @@ defmodule Envelope.Mixfile do
       {:ex_doc, "~> 0.24", only: :dev, runtime: false},
       {:poison, "~> 3.0", only: [:dev, :test]},
       {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 0.4", only: [:dev], runtime: false}
+      {:dialyxir, "~> 0.4", only: [:dev], runtime: false},
+      {:topo, "~> 0.4", only: [:test]}
     ]
   end
 

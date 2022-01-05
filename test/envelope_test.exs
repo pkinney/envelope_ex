@@ -63,4 +63,12 @@ defmodule EnvelopeTest do
       Envelope.from_geo({:ok, {23, 9}})
     end
   end
+
+  test "creates a valid and clean Geometry from an Envelope" do
+    poly1 = [{-1, 1}, {2, 3}] |> Envelope.from_geo() |> Envelope.to_geo()
+    assert Topo.Cleaner.clean(poly1) == poly1
+
+    poly2 = [{-1, -2}, {-1, 3}] |> Envelope.from_geo() |> Envelope.to_geo()
+    assert Topo.Cleaner.clean(poly2) == poly2
+  end
 end
