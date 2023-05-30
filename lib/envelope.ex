@@ -98,7 +98,7 @@ defmodule Envelope do
       iex> Envelope.to_geo %Envelope{ min_x: 1, min_y: 3, max_x: 1, max_y: 3 }
       %Geo.Point{coordinates: {1, 3}}
   """
-  @spec to_geo(t()) :: %Geo.Polygon{} | %Geo.Point{} | %Geo.LineString{}
+  @spec to_geo(t()) :: Geo.Polygon.t() | Geo.Point.t() | Geo.LineString.t()
   def to_geo(%Envelope{min_x: x, min_y: y, max_x: x, max_y: y}),
     do: %Geo.Point{coordinates: {x, y}}
 
